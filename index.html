@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="base.css">
+</head>
+<body class="body">
+  <div id="Top" class="back-to-top-container">
+    <div class="back-to-top-button-wrapper"><a href="#Top" class="button-circle bg-gray-3 w-inline-block"><img src="images/icon-arrow-up.svg" alt="" class="button-circle-icon"></a></div>
+  </div>
+  <div class="navbar-wrapper sticky-top">
+    <div class="container">
+      <div data-collapse="medium" data-animation="default" data-duration="400" role="banner" class="navbar-permanent w-nav">
+        <div class="navbar-row">
+          <div>
+            <a href="/" class="navbar-1-brand w-nav-brand">
+              <h3 class="brand"><span class="contain text-span-5">Visualize</span>Covid</h3>
+            </a>
+          </div>
+          <div class="navbar-controls">
+            <div class="navbar-buttons">
+              <div class="modal-container">
+                <div class="modal-background"></div>
+                <div class="content-width-medium modal-content">
+                  <div class="panel modal-panel">
+                    <div class="modal-panel-bg"></div>
+                    <div class="panel-body modal-panel-body">
+                      <form action="/search" class="search-form w-form"><input type="search" class="form-input form-input-large search-modal-input w-input" autofocus="true" maxlength="256" name="query" placeholder="Type your search" id="search" required=""><input type="submit" value="Search" class="button search-form-button w-button"></form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="container content-width-large">
+      <h1>Visualizing Contact Tracing</h1>
+      <div class="row row-align-center space-bottom">
+        <div class="vis-author-profile-image bg-gradient-4">
+          <div class="text-white">CO</div>
+        </div>
+        <div class="space-left-small">Sohum Thakkar</div>
+      </div>      
+      <p class="paragraph-2">
+        In early 2020, a few months into the COVID-19 lockdown, I gathered a some nerdy friends to brainstorm an action plan to save the world.
+        Around the same time, Harry Stevens at the Washington Post published an <a href="https://www.washingtonpost.com/graphics/2020/world/corona-simulator/">incredibly impactful and informative article</a> on visualizing the spread of COVID-19. It was hugely popular - I think we owe the popularity of the phrase "Flatten the curve" to him. <br><br>
+        It highlighted a couple solutions: social distancing and forced lockdowns. But, it didn't highlight another heavy-hitter solution - contact tracing. At the time, I had just sunk my Apple signing bonus building a web portal for people to self-report their previous locations via Google location history. We called it "ContainCovid" and it won a few hackathons. 
+        It's <a href="https://github.com/containcovid/containcovid">open source</a>, and was slated to be used in the Berkeley Safecampus study before it was shut down. That was a form of self-directed contact tracing.
+        <br><br>
+        Contact tracing is powerful, but it's hard to understand the impact. So, I managed to get Harry Stevens to send me his code, and with some help from the OGs Andrew Chen, Joseh Palakapilly, Andrew Kurniawan, and Aditya Varshney, built it into a nice little framework. But it went nowhere. 
+        <br><br>
+        It lay dormant for 4 years until I became unemployed, at which point I figured I should finally add contact tracers and see what happens. Do check it out!
+        <br><br>
+        The first simulation is a slightly more complex version of the simulation from Washington Post. It has a few more familiar stages: A latent stage for folks who got infected recently, and an asymptomatic stage for folks who are infected but don't show symptoms. It also adds death.
+      <div class="basicsimulation-wrapper space-bottom">
+        <div class="sim-row">
+          <button id="basic-play-button" class="play-button">Play</button>
+          <div class="basicsimulation-table-wrapper">
+
+            <div id="basicsimulation-table" class="basicsimulation-rendertarget"></div>
+          </div>
+          <div class="basicsimulation-chart-wrapper">
+            <div id="basicsimulation-chart" class="basicsimulation-rendertarget"></div>
+          </div>
+          
+        </div>
+        <div class="basicsimulation-particles-wrapper">
+          <div id="basicsimulation-particles" class="basicsimulation-rendertarget bordered"></div>
+        </div>
+      </div>
+      
+      The second simulation adds contact tracers (dark green) and people that were traced (light green). Whenever a contact tracer encounters a symptomatic individual, they trace all of their contacts and isolate them. This is a very simplified version of contact tracing, but it's enough to show that it works.
+
+      There are 10 tracers in this simulation. In several random seeds, they are able to keep the deaths to almost 0.
+
+      <div class="basicsimulation-wrapper space-bottom">
+        <div class="sim-row">
+          <button id="tracer-play-button" class="play-button">Play</button>
+          <div class="basicsimulation-table-wrapper">
+
+            <div id="tracersimulation-table" class="basicsimulation-rendertarget"></div>
+          </div>
+          <div class="basicsimulation-chart-wrapper">
+            <div id="tracersimulation-chart" class="basicsimulation-rendertarget"></div>
+          </div>
+          
+        </div>
+        <div class="basicsimulation-particles-wrapper">
+          <div id="tracersimulation-particles" class="basicsimulation-rendertarget bordered"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://d3js.org/d3.v4.js"></script>
+  <script src="https://d3js.org/d3-random.v1.min.js"></script>
+  <script src="https://d3js.org/d3-quadtree.v1.min.js"></script>
+  <script src="https://unpkg.com/three@0.105.2/examples/js/libs/stats.min.js"></script>
+  <script src="https://unpkg.com/geometric@2/build/geometric.min.js"></script>
+  <script src="utils.js"></script>
+  <script src="simulation.js"></script>
+  <script src="basicworld.js"></script>
+  <script src="tracerworld.js"></script>
+  <script src="visualization.js"></script>
+  <script>
+
+  const simDuration = 1000;
+  const numTicksPerDay = 10;
+  
+  // Basic
+  const basicwrapper = document.getElementById("basicsimulation-particles");
+  var rect = basicwrapper.getBoundingClientRect(),
+    basic_width = rect.width,
+    basic_height = rect.height;
+  const basic_sim = new BasicWorldSimulation({width: basic_width, height: basic_height}, simDuration, numTicksPerDay, 200);
+  const basic_vis = new SimulationVisualization("basicsimulation-particles");
+  const basic_graph = new SimulationGraph("basicsimulation-chart", simDuration, 200);
+  const basic_table = new SimulationTable("basicsimulation-table", basic_sim.compartmentStats);
+  const basic_play_button = d3.select("#basic-play-button");
+
+  // Tracer
+  const tracerwrapper = document.getElementById("tracersimulation-particles");
+  var rect = tracerwrapper.getBoundingClientRect(),
+    tracer_width = rect.width,
+    tracer_height = rect.height;
+  const tracer_sim = new TracerWorldSimulation({width: tracer_width, height: tracer_height}, simDuration, numTicksPerDay, 200, 10);
+  const tracer_vis = new SimulationVisualization("tracersimulation-particles");
+  const tracer_graph = new SimulationGraph("tracersimulation-chart", simDuration, 200);
+  const tracer_table = new SimulationTable("tracersimulation-table", tracer_sim.compartmentStats);
+  const tracer_play_button = d3.select("#tracer-play-button");
+
+  tracer_vis.update(tracer_sim.people)
+  function tick(){
+      if (basic_sim.currentTime > basic_sim.duration){
+          basic_play_button.text("Restart")
+          basic_sim.playing = 0
+      }
+      if (basic_sim.playing){
+          basic_sim.tick();
+          basic_vis.update(basic_sim.people);
+          basic_table.update(basic_sim.compartmentStats);
+          basic_graph.update(basic_sim.compartmentStats, basic_sim.currentTime);
+      }
+
+      if (tracer_sim.currentTime > tracer_sim.duration){
+          tracer_play_button.text("Restart")
+          tracer_sim.playing = 0
+      }
+      if (tracer_sim.playing){
+          tracer_sim.tick();
+          tracer_vis.update(tracer_sim.people);
+          tracer_table.update(tracer_sim.compartmentStats);
+          tracer_graph.update(tracer_sim.compartmentStats, tracer_sim.currentTime);
+      }
+
+      requestAnimationFrame(tick);
+  }
+
+  // There's probably a way to abstract the play button to a class but idk how 
+  basic_play_button .on("click", function() {
+    var button = d3.select(this);
+    if (button.text() == "Pause") {
+      button.text("Play");
+      basic_sim.playing = 0
+    } else if (button.text() == "Restart"){
+      button.text("Play");
+      basic_sim.initialize()
+      basic_vis.update(basic_sim.people)
+      basic_table.update(basic_sim.compartmentStats);
+      basic_graph.clear();
+
+    } else {
+      button.text("Pause");
+      basic_sim.playing = 1
+    }
+  })
+
+  tracer_play_button .on("click", function() {
+    var button = d3.select(this);
+    if (button.text() == "Pause") {
+      button.text("Play");
+      tracer_sim.playing = 0
+    } else if (button.text() == "Restart"){
+      button.text("Play");
+      tracer_sim.initialize()
+      tracer_vis.update(tracer_sim.people)
+      tracer_table.update(tracer_sim.compartmentStats);
+      tracer_graph.clear();
+
+    } else {
+      button.text("Pause");
+      tracer_sim.playing = 1
+    }
+  })
+
+  tick();
+
+  </script>
+</body>
+</html>
