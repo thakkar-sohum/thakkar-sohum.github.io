@@ -1572,6 +1572,22 @@ figcaption {
 
 .image {
   width: 200px;
+  position: relative;
+}
+
+.coming-soon-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-weight: bold;
+  z-index: 4;
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }
 
 .text-span-2 {
