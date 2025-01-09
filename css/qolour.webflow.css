@@ -11,6 +11,20 @@
   --800: #263142;
 }
 
+.coming-soon-overlay {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 4px;
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 10;
+}
+
 .w-form-formradioinput--inputType-custom {
   border: 1px solid #ccc;
   border-radius: 50%;
